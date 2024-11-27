@@ -1,58 +1,118 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const App = () => {
-  const [categoryName, setCategoryName] = useState('');
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [files, setFiles] = useState(null);
+  const [previews, setPreviews] = useState([]);
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState('');
 
-  const handleSubmit = async () => {
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/getCategory');
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data.category);
+        } else {
+          console.error("Erreur lors de la récupération des catégories.");
+        }
+      } catch (error) {
+        console.error("Erreur de réseau :", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const handleFileChange = (e) => {
+    const selectedFiles = e.target.files;
+    setFiles(selectedFiles);
+
+    const newPreviews = Array.from(selectedFiles).map((file) => {
+      return URL.createObjectURL(file);
+    });
+    setPreviews(newPreviews);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('category', category);
+    if (files) {
+      for (let i = 0; i < files.length; i++) {
+        formData.append('image', files[i]);
+      }
+    }
+
     try {
-      const response = await fetch('http://localhost:3000/api/createCategory/', {
+      const response = await fetch('http://localhost:3000/api/create_product', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ categoryName }),
+        body: formData,
       });
 
-      if (response.status === 201) {
-        setMessage('Bien posté');
+      if (response.ok) {
+        const result = await response.json();
+        setMessage('Produit créé avec succès');
         setMessageType('success');
-        setTimeout(() => setMessage(null), 3000);
-      } else if (response.status === 400) {
-        setMessage('Erreur : la requête a échoué.');
-        setMessageType('error');
-        setTimeout(() => setMessage(null), 3000);
+        console.log(result);
+        setPreviews([]);
       } else {
-        setMessage('Erreur inattendue.');
+        setMessage('Erreur lors de la création du produit');
         setMessageType('error');
-        setTimeout(() => setMessage(null), 3000);
       }
     } catch (error) {
-      setMessage('Une erreur est survenue.');
+      setMessage('Une erreur est survenue');
       setMessageType('error');
+    } finally {
       setTimeout(() => setMessage(null), 3000);
     }
   };
 
   return (
     <div style={styles.container}>
-      <input
-        type="text"
-        placeholder="Nom de la catégorie"
-        value={categoryName}
-        onChange={(e) => setCategoryName(e.target.value)}
-        style={styles.input}
-      />
-      <button onClick={handleSubmit} style={styles.button}>
-        Submit
-      </button>
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <input
+          type="text"
+          placeholder="Titre"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          style={styles.input}
+        />
+        <input
+          list="categories"
+          placeholder="Catégorie"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          style={styles.input}
+        />
+        <datalist id="categories">
+          {categories.map((cat, index) => (
+            <option key={index} value={cat} />
+          ))}
+        </datalist>
+        <input
+          type="file"
+          multiple
+          onChange={handleFileChange}
+          style={styles.input}
+        />
+        <div style={styles.previewContainer}>
+          {previews.map((src, index) => (
+            <img key={index} src={src} alt={`preview-${index}`} style={styles.previewImage} />
+          ))}
+        </div>
+        <button type="submit" style={styles.button}>
+          Soumettre
+        </button>
+      </form>
       {message && (
         <div
           style={
-            messageType === 'success'
-              ? styles.successMessage
-              : styles.errorMessage
+            messageType === 'success' ? styles.successMessage : styles.errorMessage
           }
         >
           {message}
@@ -70,52 +130,48 @@ const styles = {
     justifyContent: 'center',
     height: '100vh',
     backgroundColor: '#f5f5f5',
-    position: 'relative',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    width: '300px',
   },
   input: {
-    padding: '10px',
-    fontSize: '16px',
     marginBottom: '10px',
-    width: '300px',
-    border: '1px solid #ccc',
+    padding: '10px',
+    width: '100%',
     borderRadius: '4px',
+    border: '1px solid #ccc',
   },
   button: {
     padding: '10px 20px',
-    fontSize: '16px',
     backgroundColor: '#007bff',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
   },
-  successMessage: {
-    position: 'fixed',
-    bottom: '20px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    backgroundColor: '#28a745',
-    color: 'white',
-    padding: '10px 20px',
+  previewContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '10px',
+    marginBottom: '10px',
+  },
+  previewImage: {
+    width: '100px',
+    height: '100px',
+    objectFit: 'cover',
     borderRadius: '4px',
-    fontSize: '16px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    animation: 'fadeInOut 3s ease',
+  },
+  successMessage: {
+    marginTop: '20px',
+    color: 'green',
   },
   errorMessage: {
-    position: 'fixed',
-    bottom: '20px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    backgroundColor: '#dc3545',
-    color: 'white',
-    padding: '10px 20px',
-    borderRadius: '4px',
-    fontSize: '16px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    animation: 'fadeInOut 3s ease',
+    marginTop: '20px',
+    color: 'red',
   },
 };
 
 export default App;
-
