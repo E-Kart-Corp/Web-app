@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
   const [title, setTitle] = useState('');
@@ -73,105 +74,81 @@ const App = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input
-          type="text"
-          placeholder="Titre"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          style={styles.input}
-        />
-        <input
-          list="categories"
-          placeholder="Catégorie"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          style={styles.input}
-        />
-        <datalist id="categories">
-          {categories.map((cat, index) => (
-            <option key={index} value={cat} />
-          ))}
-        </datalist>
-        <input
-          type="file"
-          multiple
-          onChange={handleFileChange}
-          style={styles.input}
-        />
-        <div style={styles.previewContainer}>
-          {previews.map((src, index) => (
-            <img key={index} src={src} alt={`preview-${index}`} style={styles.previewImage} />
-          ))}
+    <div>
+      <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <div className="container-fluid">
+          <button className="btn btn-link nav-link">E-Kart</button>
+          <div className="collapse navbar-collapse" id="navbarNav">
+            <ul className="navbar-nav">
+              <li className="nav-item">
+                <button className="btn btn-link nav-link">Accueil</button>
+              </li>
+              <li className="nav-item">
+                <button className="btn btn-link nav-link">Produit</button>
+              </li>
+              <li className="nav-item">
+                <button className="btn btn-link nav-link">Contact</button>
+              </li>
+            </ul>
+          </div>
         </div>
-        <button type="submit" style={styles.button}>
-          Soumettre
-        </button>
-      </form>
-      {message && (
-        <div
-          style={
-            messageType === 'success' ? styles.successMessage : styles.errorMessage
-          }
-        >
-          {message}
-        </div>
-      )}
+      </nav>
+
+      <div className="container mt-5">
+        <h2 className="text-center mb-4">Créer un produit</h2>
+        <form onSubmit={handleSubmit} className="p-4 border rounded bg-light">
+          <div className="mb-3">
+            <label htmlFor="title" className="form-label">Nom du produit</label>
+            <input
+              type="text"
+              className="form-control"
+              id="title"
+              placeholder="Titre"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="category" className="form-label">Nom de la catégorie</label>
+            <input
+              list="categories"
+              className="form-control"
+              id="category"
+              placeholder="Catégorie"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            />
+            <datalist id="categories">
+              {categories.map((cat, index) => (
+                <option key={index} value={cat} />
+              ))}
+            </datalist>
+          </div>
+          <div className="mb-3">
+            <label htmlFor="file" className="form-label">Images du produit</label>
+            <input
+              type="file"
+              className="form-control"
+              id="file"
+              multiple
+              onChange={handleFileChange}
+            />
+          </div>
+          <div className="mb-3 d-flex flex-wrap gap-3">
+            {previews.map((src, index) => (
+              <img key={index} src={src} alt={`preview-${index}`} className="img-thumbnail" style={{ width: '100px', height: '100px' }} />
+            ))}
+          </div>
+          <button type="submit" className="btn btn-primary w-100">Soumettre</button>
+        </form>
+        {message && (
+          <div className={`mt-3 alert ${messageType === 'success' ? 'alert-success' : 'alert-danger'}`} role="alert">
+            {message}
+          </div>
+        )}
+      </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    backgroundColor: '#f5f5f5',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '300px',
-  },
-  input: {
-    marginBottom: '10px',
-    padding: '10px',
-    width: '100%',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-  },
-  button: {
-    padding: '10px 20px',
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-  },
-  previewContainer: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '10px',
-    marginBottom: '10px',
-  },
-  previewImage: {
-    width: '100px',
-    height: '100px',
-    objectFit: 'cover',
-    borderRadius: '4px',
-  },
-  successMessage: {
-    marginTop: '20px',
-    color: 'green',
-  },
-  errorMessage: {
-    marginTop: '20px',
-    color: 'red',
-  },
 };
 
 export default App;
