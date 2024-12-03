@@ -61,6 +61,10 @@ const App = () => {
         setMessageType('success');
         console.log(result);
         setPreviews([]);
+        setTitle("");
+        setCategory("");
+        setFiles("");
+        setPreviews([]);
       } else {
         setMessage('Erreur lors de la création du produit');
         setMessageType('error');
