@@ -13,7 +13,7 @@ const App = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/getCategory');
+        const response = await fetch('https://api-ekart.netlify.app/api/getCategory');
         if (response.ok) {
           const data = await response.json();
           setCategories(data.category);
@@ -50,7 +50,7 @@ const App = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/create_product', {
+      const response = await fetch('https://api-ekart.netlify.app/api/createProduct', {
         method: 'POST',
         body: formData,
       });
