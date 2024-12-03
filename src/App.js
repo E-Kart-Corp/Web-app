@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const App = () => {
   const [title, setTitle] = useState('');
@@ -9,6 +10,7 @@ const App = () => {
   const [previews, setPreviews] = useState([]);
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState('');
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -35,6 +37,13 @@ const App = () => {
       return URL.createObjectURL(file);
     });
     setPreviews(newPreviews);
+  };
+
+  const handleRemovePreview = (indexToRemove) => {
+    setPreviews(previews.filter((_, index) => index !== indexToRemove));
+
+    const newFiles = Array.from(files).filter((_, index) => index !== indexToRemove);
+    setFiles(newFiles.length > 0 ? newFiles : null);
   };
 
   const handleSubmit = async (e) => {
@@ -139,11 +148,36 @@ const App = () => {
             />
           </div>
           <div className="mb-3 d-flex flex-wrap gap-3">
-            {previews.map((src, index) => (
-              <img key={index} src={src} alt={`preview-${index}`} className="img-thumbnail" style={{ width: '100px', height: '100px' }} />
+          {previews.map((src, index) => (
+              <div
+                key={index}
+                className="position-relative"
+                style={{ display: 'inline-block', width: '100px', height: '100px' }}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
+                <img
+                  src={src}
+                  alt={`preview-${index}`}
+                  className="img-thumbnail"
+                  style={{ width: '100px', height: '100px' }}
+                />
+                <div
+                  className="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.7)',
+                    opacity: hoveredIndex === index ? 1 : 0,
+                    transition: 'opacity 0.3s',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => handleRemovePreview(index)}
+                >
+                  <i className="bi bi-file-earmark-x text-danger fs-4"></i>
+                </div>
+              </div>
             ))}
           </div>
-          <button type="submit" className="btn btn-primary w-100">Soumettre</button>
+          <button type="submit" className="btn btn-primary w-100">Créer le Produit</button>
         </form>
         {message && (
           <div className={`mt-3 alert ${messageType === 'success' ? 'alert-success' : 'alert-danger'}`} role="alert">
