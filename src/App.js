@@ -11,6 +11,7 @@ const App = () => {
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState('');
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [productsByCategory, setProductsByCategory] = useState({});
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -19,6 +20,7 @@ const App = () => {
         if (response.ok) {
           const data = await response.json();
           setCategories(data.category);
+          fetchProducts(data.category);
         } else {
           console.error("Erreur lors de la récupération des catégories.");
         }
@@ -28,6 +30,28 @@ const App = () => {
     };
     fetchCategories();
   }, []);
+  
+  const fetchProducts = async (categories) => {
+    const allProducts = {};
+    for (const cat of categories) {
+      try {
+        const response = await fetch('https://api-ekart.netlify.app/api/getProduct', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ category: cat }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          allProducts[cat] = data.products.map(product => product.title);
+        }
+      } catch (error) {
+        console.error(`Erreur de réseau pour la catégorie ${cat} :`, error);
+      }
+    }
+    setProductsByCategory(allProducts);
+  };
 
   const handleFileChange = (e) => {
     const selectedFiles = e.target.files;
@@ -185,7 +209,24 @@ const App = () => {
           </div>
         )}
       </div>
-    </div>
+      <div className="container mt-5">
+        <h2 className="text-center mb-4">Produits par Catégorie</h2>
+        {Object.keys(productsByCategory).length === 0 ? (
+          <p className="text-center">Aucun produit disponible.</p>
+        ) : (
+          Object.keys(productsByCategory).map(cat => (
+            <div key={cat} className="mb-4">
+              <h3>{cat}</h3>
+              <ul>
+                {productsByCategory[cat].map((title, index) => (
+                  <li key={index}>{title}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        )}
+      </div>
+      </div>
   );
 };
 
