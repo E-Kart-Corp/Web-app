@@ -6,6 +6,7 @@ const App = () => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
+  const [searchCategory, setSearchCategory] = useState('');
   const [files, setFiles] = useState(null);
   const [previews, setPreviews] = useState([]);
   const [message, setMessage] = useState(null);
@@ -35,16 +36,17 @@ const App = () => {
     const allProducts = {};
     for (const cat of categories) {
       try {
-        const response = await fetch('https://api-ekart.netlify.app/api/getProduct', {
-          method: 'POST',
+        const response = await fetch(`https://api-ekart.netlify.app/api/getProduct/${encodeURIComponent(cat)}`, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ category: cat }),
         });
         if (response.ok) {
           const data = await response.json();
           allProducts[cat] = data.products.map(product => product.title);
+        } else {
+          console.error(`Erreur API pour la catégorie ${cat}:`, response.statusText);
         }
       } catch (error) {
         console.error(`Erreur de réseau pour la catégorie ${cat} :`, error);
@@ -210,20 +212,37 @@ const App = () => {
         )}
       </div>
       <div className="container mt-5">
-        <h2 className="text-center mb-4">Produits par Catégorie</h2>
+        <h2 className="text-center mb-4">Produits Existant</h2>
+        <div className="mb-4">
+          <input
+            list="categories"
+            className="form-control"
+            placeholder="Rechercher une catégorie"
+            value={searchCategory}
+            onChange={(e) => setSearchCategory(e.target.value)}
+          />
+          <datalist id="categories">
+            {categories.map((cat, index) => (
+              <option key={index} value={cat} />
+            ))}
+          </datalist>
+        </div>
+
         {Object.keys(productsByCategory).length === 0 ? (
           <p className="text-center">Aucun produit disponible.</p>
         ) : (
-          Object.keys(productsByCategory).map(cat => (
-            <div key={cat} className="mb-4">
-              <h3>{cat}</h3>
-              <ul>
-                {productsByCategory[cat].map((title, index) => (
-                  <li key={index}>{title}</li>
-                ))}
-              </ul>
-            </div>
-          ))
+          Object.keys(productsByCategory)
+            .filter((cat) => !searchCategory || cat.toLowerCase().includes(searchCategory.toLowerCase()))
+            .map((cat) => (
+              <div key={cat} className="mb-4">
+                <h3>{cat}</h3>
+                <ul>
+                  {productsByCategory[cat].map((title, index) => (
+                    <li key={index}>{title}</li>
+                  ))}
+                </ul>
+              </div>
+            ))
         )}
       </div>
       </div>
