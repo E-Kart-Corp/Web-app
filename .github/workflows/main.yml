@@ -1,4 +1,4 @@
-name: ReactJS CI/CD Pipeline
+name: Web App Packaging test
 
 on:
   push:
