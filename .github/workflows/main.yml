@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - dev
-      - 5-faire-la-cicd-du-repo-web-app
 
 jobs:
   build-and-test:
