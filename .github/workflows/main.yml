@@ -1,10 +1,9 @@
-name: ReactJS CI/CD Pipeline
+name: Web App Packaging test
 
 on:
   push:
     branches:
       - dev
-      - dev/5-faire-la-cicd-du-repo-web-app
 
 jobs:
   build-and-test:
