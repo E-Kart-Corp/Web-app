@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import App from "./App";
 
-test("renders Create Product heading", () => {
+test("renders heading", () => {
   render(<App />);
-  const headingElement = screen.getByText(/Créer un produit/i);
+  const headingElement = screen.getByText(/Mettre le Code/i);
   expect(headingElement).toBeInTheDocument();
 });
