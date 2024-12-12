@@ -13,6 +13,8 @@ const App = () => {
   const [messageType, setMessageType] = useState('');
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [productsByCategory, setProductsByCategory] = useState({});
+  const [authenticated, setAuthenticated] = useState(false);
+  const [code, setCode] = useState('');
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -111,6 +113,52 @@ const App = () => {
       setTimeout(() => setMessage(null), 3000);
     }
   };
+
+  if (authenticated === false) {
+    const handleAuthenticated = async (e) => {
+      e.preventDefault();
+      const raw = JSON.stringify({
+        "code": code
+      });
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+
+      try {
+        const response = await fetch('https://api-ekart.netlify.app/api/authenticated', {
+          method: 'POST',
+          body: raw,
+          headers: myHeaders,
+        });
+  
+        if (response.ok) {
+          const result = await response.json();
+          setMessage('Code valide');
+          setMessageType('success');
+          if (result.success === true) {
+            setAuthenticated(true);
+          }
+        } else {
+          setMessage('Code invalid');
+          setMessageType('error');
+        }
+      } catch (error) {
+        setMessage('Une erreur est survenue');
+        setMessageType('error');
+      } finally {
+        setTimeout(() => setMessage(null), 3000);
+      }
+      
+    };
+    return (
+      <div>
+        <h1>Mettre le code</h1>
+        <form onSubmit={handleAuthenticated} className="p-4 border rounded bg-light">
+          <input id="code" value={code} onChange={(e) => setCode(e.target.value)}></input>
+          <button type="submit">Entrer</button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div>
