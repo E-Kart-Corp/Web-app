@@ -106,6 +106,31 @@ const App = () => {
         setMessage('Erreur lors de la création du produit');
         setMessageType('error');
       }
+    } catch (error) {
+      setMessage('Une erreur est survenue');
+      setMessageType('error');
+    } finally {
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  if (authenticated === false) {
+    const handleAuthenticated = async (e) => {
+      e.preventDefault();
+      const raw = JSON.stringify({
+        "code": code
+      });
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+
+      try {
+        const response = await fetch('https://api-ekart.netlify.app/api/authenticated', {
+          method: 'POST',
+          body: raw,
+          headers: myHeaders,
+        });
+  
+        if (response.ok) {
           const result = await response.json();
           setMessage('Code valide');
           setMessageType('success');
