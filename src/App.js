@@ -151,7 +151,7 @@ const App = () => {
     };
     return (
       <div>
-        <h1>Mettre le code</h1>
+        <h1>Mettre le Code</h1>
         <form onSubmit={handleAuthenticated} className="p-4 border rounded bg-light">
           <input id="code" value={code} onChange={(e) => setCode(e.target.value)}></input>
           <button type="submit">Entrer</button>
